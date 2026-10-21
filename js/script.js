@@ -139,10 +139,13 @@ if (year) year.textContent = new Date().getFullYear();
 (() => {
   const hero = document.querySelector('.hero');
   if (!hero) return;
+  const header = document.querySelector('.site-header');
+  const overlap = document.querySelector('.about-overlap');
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let frame = 0;
   let top = 0;
   let distance = 1;
+  let headerHeight = 0;
   let measure = true;
   let active = true;
 
@@ -156,8 +159,10 @@ if (year) year.textContent = new Date().getFullYear();
     if (motion.matches || document.hidden || !active) return;
     if (measure) {
       const bounds = hero.getBoundingClientRect();
-      top = bounds.top + window.scrollY;
-      distance = Math.max(bounds.height * .85, 1);
+      top = Math.max(0, bounds.top + window.scrollY - headerHeight);
+      // Finish as About reaches the header; use native scroll positions in both directions.
+      const aboutTop = (overlap?.getBoundingClientRect().top ?? bounds.bottom) + window.scrollY;
+      distance = Math.max(aboutTop - headerHeight - top, 1);
       measure = false;
     }
     const progress = Math.min(1, Math.max(0, (window.scrollY - top) / distance));
@@ -173,17 +178,24 @@ if (year) year.textContent = new Date().getFullYear();
 
   function resize() {
     measure = true;
+    if (document.hidden || !active) return;
+    const height = header?.getBoundingClientRect().height || 0;
+    if (height !== headerHeight) {
+      headerHeight = height;
+      hero.style.setProperty('--hero-header-height', `${height}px`);
+    }
     requestUpdate();
   }
 
   function sync() {
     cancel();
     if (motion.matches) hero.style.removeProperty('--hero-opacity');
-    else resize();
+    resize();
   }
 
   const observer = 'ResizeObserver' in window ? new ResizeObserver(resize) : null;
   observer?.observe(hero);
+  if (header) observer?.observe(header);
   window.addEventListener('scroll', requestUpdate, { passive: true });
   // Lenis notifies after writing the actual native scroll position in its frame.
   window.addEventListener('portfolio:smooth-scroll', () => { cancel(); update(); });
@@ -191,8 +203,28 @@ if (year) year.textContent = new Date().getFullYear();
   motion.addEventListener('change', sync);
   document.addEventListener('visibilitychange', sync);
   window.addEventListener('pagehide', () => { active = false; cancel(); observer?.disconnect(); });
-  window.addEventListener('pageshow', () => { active = true; observer?.observe(hero); sync(); });
+  window.addEventListener('pageshow', () => { active = true; observer?.observe(hero); if (header) observer?.observe(header); sync(); });
   sync();
+})();
+
+/* About reveals once; unenhanced content is always visible. */
+(() => {
+  const about = document.querySelector('#about');
+  if (!about || !('IntersectionObserver' in window)) return;
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (motion.matches) return;
+  const remaining = new Set(about.querySelectorAll('[data-about-reveal]'));
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting && remaining.has(entry.target)) {
+        entry.target.classList.add('is-revealed');
+        observer.unobserve(entry.target);
+        remaining.delete(entry.target);
+      }
+    }
+    if (remaining.size === 0) observer.disconnect();
+  }, { threshold: .1 });
+  remaining.forEach(element => observer.observe(element));
 })();
 
 /* Single cursor: a fluid default trail, precise hover, CSS-only shape transitions. */
