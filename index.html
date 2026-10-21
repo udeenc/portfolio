@@ -10,6 +10,7 @@
   <script src="js/script.js" defer></script>
 </head>
 <body>
+  <div class="custom-cursor" aria-hidden="true"></div>
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <nav class="container nav" aria-label="Main navigation">
@@ -33,15 +34,23 @@
     <!-- Hero -->
     <section class="hero container" id="home" aria-labelledby="hero-title">
       <div class="hero-content">
-        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> DATA ANALYTICS / DATA ENGINEERING</p>
-        <h1 id="hero-title">Making sense of data.<br><span>Building what’s next.</span></h1>
-        <p class="hero-description">I’m Candra, a Computer Science student at BINUS University exploring how data is prepared, understood, and turned into useful insights.</p>
-        <div class="actions">
-          <a class="button button-primary" href="#featured">Explore my work <span aria-hidden="true">↗</span></a>
+        <p class="eyebrow hero-reveal"><span class="status-dot" aria-hidden="true"></span> COMPUTER SCIENCE / BINUS UNIVERSITY</p>
+        <h1 id="hero-title"><span class="hero-name-line">Candra</span><span class="hero-name-line hero-name-accent">Wijaya<span class="hero-period" aria-hidden="true">.</span></span></h1>
+        <div class="hero-focus hero-reveal">
+          <p class="hero-focus-label small-label">My focus /</p>
+          <p class="hero-roles"><span class="sr-only">Data Engineering and Data Analytics. Building Data Pipelines and Turning Data Into Insights.</span><span class="hero-rotation" aria-hidden="true"><span class="hero-role is-active">Data Engineering</span><span class="hero-role">Data Analytics</span><span class="hero-role">Building Data Pipelines</span><span class="hero-role">Turning Data Into Insights</span></span></p>
+          <button class="hero-motion-toggle" type="button" aria-label="Pause rotating focus text" aria-pressed="false" hidden>Pause rotation <span aria-hidden="true">Ⅱ</span></button>
+        </div>
+        <div class="hero-summary hero-reveal">
+        <p class="hero-description">I’m a Computer Science student exploring how raw data becomes reliable foundations and useful insights. Seeking internship opportunities in Data Engineering and Data Analytics.</p>
+        <div class="actions hero-actions">
+          <a class="button button-primary" href="#featured">View projects <span aria-hidden="true">↗</span></a>
           <a class="button button-secondary" href="https://github.com/udeenc" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
+          <a class="text-link hero-contact" href="#contact">Let’s connect <span aria-hidden="true">↗</span></a>
+        </div>
         </div>
       </div>
-      <div class="hero-bottom"><span>Curiosity. Structure. Insight.</span><a href="#about">Scroll to explore <span aria-hidden="true">↓</span></a></div>
+      <div class="hero-bottom"><span class="small-label">Curiosity. Structure. Insight.</span><a class="hero-scroll" href="#about"><span class="hero-scroll-track" aria-hidden="true"></span><span>Scroll to Explore</span><span aria-hidden="true">↓</span></a></div>
     </section>
 
     <!-- About -->
