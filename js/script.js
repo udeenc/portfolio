@@ -36,59 +36,161 @@ if (navToggle && navLinks) {
 const year = document.querySelector('#year');
 if (year) year.textContent = new Date().getFullYear();
 
-/* Hero rotation: stable grid sizing, a manual pause, and no live announcements. */
+/* Hero greetings: one timer, stable accessible copy, and motion-aware lifecycle. */
 (() => {
   const hero = document.querySelector('.hero');
-  const toggle = hero?.querySelector('.hero-motion-toggle');
-  const roles = hero?.querySelectorAll('.hero-role');
-  if (!toggle || !roles || roles.length < 2) return;
+  const writer = hero?.querySelector('.hero-typewriter');
+  const text = writer?.querySelector('.hero-greeting-text');
+  if (!writer || !text) return;
+  const greetings = [
+    'Curious about what I build?',
+    "There's a story behind every project.",
+    'Scroll down and take a look.'
+  ];
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let index = 0;
+  let character = 0;
   let timer = 0;
-  let paused = false;
-  let inView = true;
+  let phase = 'typing';
+  let inView = false;
   let pageActive = true;
+  let ready = false;
 
-  function syncRotation() {
+  function stop() {
     window.clearTimeout(timer);
     timer = 0;
-    toggle.hidden = motion.matches;
-    toggle.setAttribute('aria-pressed', String(paused));
-    toggle.setAttribute('aria-label', `${paused ? 'Resume' : 'Pause'} rotating focus text`);
-    toggle.textContent = paused ? 'Resume rotation ↻' : 'Pause rotation Ⅱ';
-    if (motion.matches) {
-      roles[index].classList.remove('is-active');
-      index = 0;
-      roles[index].classList.add('is-active');
-    }
-    if (paused || motion.matches || document.hidden || !inView || !pageActive) return;
-    timer = window.setTimeout(() => {
-      roles[index].classList.remove('is-active');
-      index = (index + 1) % roles.length;
-      roles[index].classList.add('is-active');
-      syncRotation();
-    }, 4500);
+    writer.classList.remove('is-typing');
   }
 
-  toggle.addEventListener('click', () => { paused = !paused; syncRotation(); });
-  motion.addEventListener('change', syncRotation);
-  document.addEventListener('visibilitychange', syncRotation);
+  function schedule(delay) {
+    timer = window.setTimeout(step, delay);
+  }
+
+  function step() {
+    timer = 0;
+    if (phase === 'holding') {
+      text.classList.add('is-changing');
+      phase = 'changing';
+      schedule(180);
+    } else if (phase === 'changing') {
+      index = (index + 1) % greetings.length;
+      character = 0;
+      text.textContent = '';
+      text.classList.remove('is-changing');
+      phase = 'typing';
+      schedule(55);
+    } else {
+      character += 1;
+      text.textContent = greetings[index].slice(0, character);
+      if (character === greetings[index].length) {
+        phase = 'holding';
+        schedule(2000);
+      } else {
+        schedule(55);
+      }
+    }
+  }
+
+  function syncGreeting() {
+    stop();
+    if (motion.matches) {
+      index = 0;
+      character = 0;
+      phase = 'typing';
+      ready = false;
+      text.textContent = greetings[0];
+      text.classList.remove('is-changing');
+      return;
+    }
+    if (document.hidden || !inView || !pageActive) return;
+    writer.classList.add('is-typing');
+    if (!ready) {
+      // Begin after the greeting's entrance reveal so characters stay readable.
+      ready = true;
+      text.textContent = '';
+      schedule(800);
+    } else {
+      schedule(phase === 'holding' ? 2000 : phase === 'changing' ? 180 : 55);
+    }
+  }
+
+  motion.addEventListener('change', syncGreeting);
+  document.addEventListener('visibilitychange', syncGreeting);
   const observer = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
     inView = entries[0].isIntersecting;
-    syncRotation();
+    syncGreeting();
   }) : null;
-  observer?.observe(hero);
+  if (observer) observer.observe(hero);
+  else inView = true;
   window.addEventListener('pagehide', () => {
     pageActive = false;
-    window.clearTimeout(timer);
+    stop();
     observer?.disconnect();
   });
   window.addEventListener('pageshow', () => {
     pageActive = true;
     observer?.observe(hero);
-    syncRotation();
+    syncGreeting();
   });
-  syncRotation();
+  syncGreeting();
+})();
+
+/* Scroll fade: one event-driven frame; measurements cached until layout changes. */
+(() => {
+  const hero = document.querySelector('.hero');
+  if (!hero) return;
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let frame = 0;
+  let top = 0;
+  let distance = 1;
+  let measure = true;
+  let active = true;
+
+  function cancel() {
+    window.cancelAnimationFrame(frame);
+    frame = 0;
+  }
+
+  function update() {
+    frame = 0;
+    if (motion.matches || document.hidden || !active) return;
+    if (measure) {
+      const bounds = hero.getBoundingClientRect();
+      top = bounds.top + window.scrollY;
+      distance = Math.max(bounds.height * .85, 1);
+      measure = false;
+    }
+    const progress = Math.min(1, Math.max(0, (window.scrollY - top) / distance));
+    const eased = progress * progress * (3 - 2 * progress);
+    hero.style.setProperty('--hero-opacity', String(1 - eased));
+  }
+
+  function requestUpdate() {
+    if (!frame && active && !motion.matches && !document.hidden) {
+      frame = window.requestAnimationFrame(update);
+    }
+  }
+
+  function resize() {
+    measure = true;
+    requestUpdate();
+  }
+
+  function sync() {
+    cancel();
+    if (motion.matches) hero.style.removeProperty('--hero-opacity');
+    else resize();
+  }
+
+  const observer = 'ResizeObserver' in window ? new ResizeObserver(resize) : null;
+  observer?.observe(hero);
+  window.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', resize, { passive: true });
+  motion.addEventListener('change', sync);
+  document.addEventListener('visibilitychange', sync);
+  window.addEventListener('pagehide', () => { active = false; cancel(); observer?.disconnect(); });
+  window.addEventListener('pageshow', () => { active = true; observer?.observe(hero); sync(); });
+  sync();
 })();
 
 /* Single cursor: a fluid default trail, precise hover, CSS-only shape transitions. */
