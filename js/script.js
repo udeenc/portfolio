@@ -185,6 +185,8 @@ if (year) year.textContent = new Date().getFullYear();
   const observer = 'ResizeObserver' in window ? new ResizeObserver(resize) : null;
   observer?.observe(hero);
   window.addEventListener('scroll', requestUpdate, { passive: true });
+  // Lenis notifies after writing the actual native scroll position in its frame.
+  window.addEventListener('portfolio:smooth-scroll', () => { cancel(); update(); });
   window.addEventListener('resize', resize, { passive: true });
   motion.addEventListener('change', sync);
   document.addEventListener('visibilitychange', sync);

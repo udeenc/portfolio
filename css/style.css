@@ -10,9 +10,13 @@
   --radius: 16px;
   --content-max: 1560px;
   --gutter: clamp(20px, 4vw, 72px);
+  --section-overlap: 72px;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+/* Lenis uses native scroll positions; prevent competing CSS interpolation. */
+html.lenis { height: auto; scroll-behavior: auto !important; }
+html.lenis body { height: auto; }
 body { margin: 0; background: var(--background); color: var(--text); font-family: "Segoe UI", Arial, sans-serif; font-size: 16px; line-height: 1.7; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; }
@@ -65,6 +69,9 @@ img { display: block; width: 100%; height: auto; }
 .hero { position: relative; isolation: isolate; padding-top: clamp(32px, 4vw, 64px); min-height: calc(100svh - 84px); display: flex; flex-direction: column; }
 .hero::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 88% 25%, rgb(192 232 149 / 8%), transparent 55%); }
 .hero-layout { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+/* Reserve the covered area so the centered scroll control stays unobstructed. */
+.hero { padding-bottom: var(--section-overlap); }
+.about-overlap { position: relative; z-index: 1; margin-top: calc(-1 * var(--section-overlap)); background: var(--background); }
 .hero-content { width: 100%; }
 .hero-content, .hero-bottom { opacity: var(--hero-opacity, 1); }
 .hero:focus-within .hero-content, .hero:focus-within .hero-bottom { opacity: 1; }
@@ -174,6 +181,8 @@ img { display: block; width: 100%; height: auto; }
 .footer a:hover { color: var(--accent); }
 
 /* Responsive layouts: navigation remains usable without JavaScript. */
+@media (max-width: 1024px) { :root { --section-overlap: 48px; } }
+@media (max-width: 600px) { :root { --section-overlap: 24px; } }
 @media (min-width: 801px) { .nav-toggle { display: none; } }
 @media (max-width: 900px) {
   .section { gap: 36px; }
