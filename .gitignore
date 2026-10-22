@@ -1,0 +1,19 @@
+# Dependencies and local builds (including the isolated React app).
+node_modules/
+dist/
+dist-ssr/
+.vite/
+coverage/
+*.log
+*.local
+.env
+.env.*
+!.env.example
+
+# Temporary development artifacts.
+.cache/
+tmp/
+temp/
+*.tmp
+*.temp
+*~
