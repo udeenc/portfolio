@@ -1,19 +1,30 @@
-﻿# Portfolio React migration - Phase 4 validation
+﻿# Portfolio React migration - Phase 5B release preparation
 
 The existing portfolio layout, content, CSS, assets, and interactions are now in
 React + Vite inside `react-app/`, on `feature/react-migration`. The original root
-website remains unchanged. No production deployment or Phase 5 work has started.
+website remains unchanged. Phase 5B prepares a gated deployment workflow and
+release PR; no production deployment, Pages setting change, or merge has occurred.
 
 Phase 4 results and the proposed Phase 5 plan are in [PHASE4-VALIDATION.md](PHASE4-VALIDATION.md).
-Automated checks pass; browser/visual/GPU signoff is pending.
+Automated checks pass. Owner-provided manual browser signoff is APPROVED; see
+[the signoff record](deployment/BROWSER-SIGNOFF.md). Earlier audit reports retain
+the historical pending-review status.
 
 The Phase 4.5 checkpoint adds `.github/workflows/react-migration-ci.yml`: Ubuntu,
 Node.js 24, locked dependency installation, lint, the complete test suite, and
 production build. It runs on pushes to `feature/react-migration` and pull requests
 targeting `main`, with read-only repository permissions. This workflow validates
 the migration only; it does not publish artifacts or deploy the React version.
-Browser review and an explicitly approved deployment migration are required
-before merging. Auto-merge must remain disabled.
+Approved browser review is recorded. An explicitly approved deployment migration
+is still required before merging. Auto-merge must remain disabled.
+
+The gated production workflow is `.github/workflows/deploy-react-pages.yml`. It
+validates main pushes/manual runs, but uploads/deploys only on main in this
+repository with `REACT_PAGES_DEPLOY_ENABLED=true`. Configure the repository
+variable to **false before merging** PR #2. Keep the PR draft until release checks
+are complete. [Activation and rollback instructions](deployment/README.md) describe
+the separate Pages source switch and manual dispatch from main. The adjacent
+.template file is an inactive reference copy.
 
 ## Run locally
 
@@ -96,7 +107,7 @@ and upstream attribution are in `src/vendor/README.md`. Full notices remain in
 ## Verification (2026-10-22)
 
 - Production build and application lint pass.
-- Eleven lifecycle and source-parity tests pass using fake DOM/media/timers/RAF/observers/WebGL
+- Fourteen lifecycle, source-parity, and workflow-gate tests pass using fake DOM/media/timers/RAF/observers/WebGL
   objects plus the actual local Lenis constructor. They cover exact greeting
   messages/timings, pause/resume, reduced motion, setup-cleanup-setup replay,
   cursor interpolation/scroll hover, fade reversal/font remeasurement, About
@@ -121,10 +132,10 @@ and upstream attribution are in `src/vendor/README.md`. Full notices remain in
 - Lenis disposal additionally cancels its pending resize debounce and one-shot
   completion frames. No scrolling equations were changed.
 
-## Manual verification still required
+## Post-deployment smoke test still required
 
-No browser is connected to this session. No pixel-perfect claim is made.
-Review the original and React versions together on desktop/mobile, including:
+The owner approved manual browser review in Phase 5B; this agent did not repeat
+it independently. After authorized cutover, smoke-test the public site, including:
 
 - Actual shader compilation, GPU appearance, right-hand Orb alignment, glow,
   pointer response, context recovery, and resource behavior across navigation/HMR.
@@ -135,4 +146,5 @@ Review the original and React versions together on desktop/mobile, including:
 - Typewriter/cursor/reveals/fade, tab visibility, offscreen pause/resume,
   reduced motion toggled live, native touch, and wheel/anchor scrolling.
 
-Phase 4 is complete for review. Phase 5 has not been configured or activated.
+Phase 5B preparation is ready for draft PR review. Remote variable false
+confirmation and explicit merge/cutover/deployment approval are still required.

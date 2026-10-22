@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "node --test tests/interactions.test.js tests/portfolio-validation.test.js"
+    "test": "node --test tests/interactions.test.js tests/portfolio-validation.test.js tests/deployment-workflow.test.js"
   },
   "dependencies": {
     "react": "^19.3.1",
