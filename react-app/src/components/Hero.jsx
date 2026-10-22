@@ -1,30 +1,35 @@
-import { useEffect, useRef } from 'react'
-import HeroOrb from './HeroOrb.jsx'
-import HeroGreeting from './HeroGreeting.jsx'
-import { mountHeroFade } from '../effects/heroFade.js'
+import InteractiveConstellation from './InteractiveConstellation.jsx'
 
 export default function Hero() {
-  const heroRef = useRef(null)
-  useEffect(() => mountHeroFade(heroRef.current), [])
-
   return (
-    <section ref={heroRef} className="hero" id="home" aria-labelledby="hero-title">
-          <div className="hero-layout container">
-          <div className="hero-stage">
-          <div className="hero-content">
-            <p className="eyebrow hero-eyebrow hero-reveal">Computer Science undergraduate, based in Alam Sutera.</p>
-            <h1 id="hero-title"><span className="hero-name-line">Hello,</span> <span className="hero-name-line hero-name-accent">I'm Candra</span></h1>
-            <p className="hero-greeting hero-reveal">
-              <span className="sr-only">Curious about what I build? There's a story behind every project. Scroll down and take a look.</span>
-              <HeroGreeting />
-            </p>
-            <p className="hero-description hero-reveal">A collection of things I've built, explored, and learned along the way.</p>
-            <p className="small-label hero-curiosity hero-reveal">CURIOSITY. STRUCTURE. INSIGHT.</p>
+    <section className="lab-hero" id="home" aria-labelledby="hero-title">
+      <div className="lab-hero__atmosphere" aria-hidden="true" />
+      <InteractiveConstellation />
+      <div className="lab-hero__inner container">
+        <div className="lab-hero__content">
+          <p className="lab-hero__eyebrow">COMPUTER SCIENCE · DATA ENGINEERING &amp; ANALYTICS</p>
+          <h1 className="lab-hero__headline" id="hero-title">
+            <span>Hello, I'm Candra.</span>
+            <span className="lab-hero__headline-accent">I build with data.</span>
+          </h1>
+          <p className="lab-hero__description">
+            Exploring data engineering and analytics through reliable pipelines, thoughtful analysis, and practical projects.
+          </p>
+          <div className="lab-hero__actions">
+            <a className="lab-hero__cta lab-hero__cta--primary" href="#featured">
+              Explore Work <span aria-hidden="true">↗</span>
+            </a>
+            <a className="lab-hero__cta lab-hero__cta--secondary" href="#about">
+              About Me <span aria-hidden="true">↗</span>
+            </a>
           </div>
-          <HeroOrb />
-          </div>
-          <div className="hero-bottom"><a className="hero-scroll hero-reveal" href="#about"><span className="hero-scroll-track" aria-hidden="true"></span><span>Scroll to Explore</span><span aria-hidden="true">↓</span></a></div>
-          </div>
-        </section>
+        </div>
+        <a className="lab-hero__scroll" href="#about">
+          <span className="lab-hero__scroll-line" aria-hidden="true" />
+          <span>Scroll to Explore</span>
+          <span aria-hidden="true">↓</span>
+        </a>
+      </div>
+    </section>
   )
 }

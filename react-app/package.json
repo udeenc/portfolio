@@ -8,11 +8,12 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "node --test tests/interactions.test.js tests/portfolio-validation.test.js tests/deployment-workflow.test.js"
+    "test": "node --test tests/interactions.test.js tests/portfolio-validation.test.js tests/deployment-workflow.test.js tests/constellation.test.js tests/hero-dissolve.test.js"
   },
   "dependencies": {
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "three": "0.186.1"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",

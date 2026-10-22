@@ -1,4 +1,15 @@
-﻿# Portfolio React migration - Phase 5B release preparation
+﻿# Portfolio V2 ? Immersive Data Lab
+
+The current feature branch records the **H5 checkpoint for completed Hero V2
+H1–H4**. The owner approved all seven manual browser checks; see
+[HERO-V2-H5.md](HERO-V2-H5.md) for signoff, checkpoint scope and final validation.
+The [H4 audit](HERO-V2-H4.md) documents responsive/performance/accessibility work;
+the [H3 report](HERO-V2-H3.md) describes the reversible dissolve. Historical reports
+retain their earlier testing status. W1 and deployment are outside this checkpoint.
+
+## Migration and release history
+
+The notes below record the earlier React migration and release preparation.
 
 The existing portfolio layout, content, CSS, assets, and interactions are now in
 React + Vite inside `react-app/`, on `feature/react-migration`. The original root
@@ -148,3 +159,12 @@ it independently. After authorized cutover, smoke-test the public site, includin
 
 Phase 5B preparation is ready for draft PR review. Remote variable false
 confirmation and explicit merge/cutover/deployment approval are still required.
+
+## Portfolio V2 H2 — interactive constellation
+
+The H1 Hero now progressively enhances its SVG with an isolated, lazy-loaded
+Three.js constellation on capable desktop devices. Mobile, reduced-motion and
+failure paths retain the unchanged SVG. See [HERO-V2-H2.md](HERO-V2-H2.md) for
+architecture, dependency/license details, performance tradeoffs, validation and
+the required manual GPU/visual signoff before H3. H2 supersedes the H1 static-only
+renderer description; the migration notes above describe the earlier V1 work.

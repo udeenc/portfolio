@@ -1,0 +1,17 @@
+﻿/* Immersive Data Lab primitives. Namespaced to preserve the approved V1 sections. */
+:root {
+  --v2-background: #080d16;
+  --v2-surface: #121c2b;
+  --v2-text: #f0f5f9;
+  --v2-accent: #61e8db;
+  --v2-accent-secondary: #a58aff;
+  --v2-muted: #a5b3c4;
+  --v2-border: #293649;
+  --v2-font-display: "Space Grotesk", "Segoe UI", Arial, sans-serif;
+  --v2-font-body: "Inter", "Segoe UI", Arial, sans-serif;
+  --v2-font-mono: "JetBrains Mono", Consolas, "Courier New", monospace;
+  --v2-space-small: 12px;
+  --v2-space-medium: 24px;
+  --v2-space-large: 40px;
+  --v2-control-radius: 6px;
+}
