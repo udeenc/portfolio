@@ -46,19 +46,13 @@ test('A1 integrates About/Education, orders and numbers sections, and preserves 
     const original = read('../../index.html').match(/<body>([\s\S]*?)<\/body>/)[1]
       // The original script also updates this year after loading.
       .replace(/(<span id="year">)\d{4}/, '$1' + new Date().getFullYear())
-    // A1 explicitly replaces About and integrates Education/Projects. Preserve
-    // Header/Footer exactly and Contact apart from numbering. S1 replaces Skills.
+    // A1 integrates About/Education; S1 and C1 replace Skills and Contact.
+    // Keep Header parity and the approved Hero/Work/Skills contracts below.
     const heroPattern = /<section\b[^>]*\bid="home"[^>]*>[\s\S]*?<\/section>/
     const workPattern = /<section\b[^>]*\bid="featured"[^>]*>[\s\S]*?<\/section>/
     const hero = markup.match(heroPattern)[0]
     const section = (html, id) => html.match(new RegExp('<section\\b[^>]*\\bid="' + id + '"[^>]*>[\\s\\S]*?<\\/section>'))[0]
-    const removeNumbering = html => html
-      .replace(/<p class="eyebrow(?: homepage-label)?">[^<]*<\/p>/, '')
-      .replace(/<span class="skill-number"[^>]*>[^<]*<\/span>/g, '')
-    for (const id of ['contact']) {
-      assert.deepEqual(tokens(removeNumbering(section(markup, id))), tokens(removeNumbering(section(original, id))))
-    }
-    for (const tag of ['header', 'footer']) {
+    for (const tag of ['header']) {
       const pattern = new RegExp('<' + tag + '\\b[^>]*>[\\s\\S]*?<\\/' + tag + '>')
       assert.deepEqual(tokens(markup.match(pattern)[0]), tokens(original.match(pattern)[0]))
     }
@@ -221,6 +215,63 @@ test('A1 integrates About/Education, orders and numbers sections, and preserves 
       const source = readFileSync(new URL(file.replaceAll('\\', '/'), sourceRoot), 'utf8')
       assert(!/(?:import|src=)[^\n]*(?:js\/script\.js|js\/hero-orb\.js|js\/smooth-scroll\.js|lenis-1\.3\.27\.min\.js)/.test(source), file)
     }
+  } finally {
+    await server.close()
+  }
+})
+
+test('C1 preserves verified contact destinations and footer, with honest noninteractive unavailable entries', async () => {
+  const root = fileURLToPath(new URL('../', import.meta.url))
+  const server = await createServer({ root, server: { middlewareMode: true }, appType: 'custom' })
+  try {
+    const { default: App } = await server.ssrLoadModule('/src/App.jsx')
+    const markup = renderToStaticMarkup(createElement(App))
+    const original = read('../../index.html')
+    const contact = markup.match(/<section\b[^>]*id="contact"[^>]*>[\s\S]*?<\/section>/)[0]
+    const contactTokens = tokens(contact)
+    const text = contactTokens.filter(token => token[0] === 'text').map(token => token[1])
+    assert(text.includes('04 / CONTACT'))
+    assert(text.includes("Let's build something meaningful."))
+    assert(text.includes("I'm open to internship opportunities and conversations around data engineering, analytics, and software development."))
+    assert.match(contact, /aria-labelledby="contact-title"/)
+    assert.match(contact, /<h2 id="contact-title">/)
+    assert(!/<h[13456]\b/.test(contact))
+    const rows = [...contact.matchAll(/<li>([\s\S]*?)<\/li>/g)].map(match => match[1])
+    assert.equal(rows.length, 4)
+    assert.deepEqual(rows.map(row => decode(row.match(/class="contact-v2__label">([^<]+)</)[1])),
+      ['Email Me', 'GitHub', 'LinkedIn', 'View My CV'])
+    for (const [index, status] of [[0, 'Unavailable'], [3, 'Coming Soon']]) {
+      assert(rows[index].includes(status))
+      assert.match(rows[index], /^<div\b/)
+      assert(!/<a\b|<button\b|href=|tabindex=|role=|download=/.test(rows[index]))
+    }
+    assert.match(rows[3], /<svg[^>]*aria-hidden="true"[^>]*focusable="false"/)
+    const links = contactTokens.filter(token => token[0] === 'start' && token[1] === 'a').map(token => token[2])
+    assert.deepEqual(links.map(link => link.href), ['https://github.com/udeenc', 'https://www.linkedin.com/in/candra-wijaya-36a008347'])
+    for (const link of links) {
+      assert(original.includes('href="' + link.href + '"'), 'Must reuse an existing destination')
+      assert.equal(link.target, '_blank')
+      assert.equal(link.rel, 'noopener noreferrer')
+    }
+    assert.equal((contact.match(/opens in a new tab/g) || []).length, 2)
+    assert(!/mailto:|\.pdf|href="#"/.test(contact)) // No verified email or CV exists.
+    const footerPattern = /<footer\b[^>]*>[\s\S]*?<\/footer>/
+    const footer = markup.match(footerPattern)[0]
+    const originalFooter = original.match(footerPattern)[0].replace(/(<span id="year">)\d{4}/, '$1' + new Date().getFullYear())
+    const footerText = html => tokens(html).filter(token => token[0] === 'text')
+    assert.deepEqual(footerText(footer), footerText(originalFooter))
+    const footerLinks = tokens(footer).filter(token => token[0] === 'start' && token[1] === 'a')
+    assert.deepEqual(footerLinks.map(token => token[2].href), ['#home'])
+    assert.match(markup, /<section[^>]*id="home"/)
+    assert(!/04 \/|Coming Soon/.test(footer))
+    assert.match(read('../src/components/Footer.jsx'), /new Date\(\)\.getFullYear\(\)/)
+    const css = read('../src/styles/contact-v2.css')
+    assert.match(css, /@media \(max-width: 800px\)[\s\S]*grid-template-columns: minmax\(0, 1fr\)/)
+    assert.match(css, /min-height: 44px/)
+    assert.match(css, /overflow-wrap: anywhere/)
+    assert.match(css, /:focus-visible/)
+    assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*transition: none/)
+    assert(!/animation:|:hover[^}]*transform:/.test(css))
   } finally {
     await server.close()
   }
