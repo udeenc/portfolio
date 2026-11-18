@@ -15,9 +15,7 @@
 .work-showcase { min-width: 0; --work-accent: var(--v2-accent); }
 .work-showcase--olist { --work-accent: var(--v2-accent-secondary); }
 .work-showcase__heading { border-top: 1px solid var(--v2-border); padding-block: 24px 32px; }
-.work-showcase__identity { display: flex; align-items: center; gap: 12px; color: var(--v2-muted); font: .72rem/1.7 var(--v2-font-mono); }
-.work-showcase__identity > span:first-child { color: var(--work-accent); }
-.work-showcase__heading h3 { margin-top: 18px; max-width: 25ch; font: 500 clamp(1.8rem, 3.5vw, 3.5rem)/1.12 var(--v2-font-display); letter-spacing: -.04em; overflow-wrap: anywhere; }
+.work-showcase__heading h3 { margin-top: 0; max-width: 25ch; font: 500 clamp(1.8rem, 3.5vw, 3.5rem)/1.12 var(--v2-font-display); letter-spacing: -.04em; overflow-wrap: anywhere; }
 .work-showcase__visual { background: var(--v2-surface); border: 1px solid var(--v2-border); border-top-color: var(--work-accent); border-radius: 12px; }
 .work-showcase__summary { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(28px, 6vw, 100px); padding-block: 32px; }
 .work-showcase__description > p { max-width: 60ch; font-size: .95rem; line-height: 1.85; color: var(--v2-muted); }
@@ -62,6 +60,12 @@
 .work-showcase__process h5 { color: var(--v2-text); font-size: .9rem; margin: 0 0 10px; }
 .work-showcase__process p, .work-showcase__insight > p:last-child { color: var(--v2-muted); font-size: .85rem; line-height: 1.8; }
 .work-showcase__insight { border-left: 2px solid var(--work-accent); padding-left: 20px; max-width: 75ch; }
+.selected-work__more { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 24px 40px; margin-top: clamp(64px, 7vw, 112px); padding-top: 28px; border-top: 1px solid var(--v2-border); }
+.selected-work__more > div { min-width: 0; max-width: 65ch; }
+.selected-work__more h3 { margin: 12px 0 18px; font: 500 clamp(1.3rem, 2vw, 1.8rem)/1.3 var(--v2-font-display); color: var(--v2-text); letter-spacing: -.025em; overflow-wrap: anywhere; }
+.selected-work__more p { color: var(--v2-muted); font-size: .85rem; }
+.selected-work__more .work-showcase__context { color: var(--v2-accent); font: .68rem/1.7 var(--v2-font-mono); }
+.selected-work__more .selected-work__more-label { margin-bottom: 8px; color: var(--v2-text); }
 @media (max-width: 800px) {
   .work-showcase__summary { grid-template-columns: 1fr; gap: 24px; }
   .work-showcase__process { grid-template-columns: 1fr; gap: 24px; }

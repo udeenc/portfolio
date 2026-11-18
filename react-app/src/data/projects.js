@@ -9,7 +9,7 @@ import starSchema from '../assets/images/star-schema.png'
 // No public pipeline repository URL has been established; do not infer one.
 export const projects = [
   {
-    id: 'pipeline', number: '01', category: 'Data Engineering',
+    id: 'pipeline',
     title: 'Automated Data Pipeline', titleId: 'pipeline-title',
     description: 'Cleaning CSV data with Python and loading it into MySQL, with Apache Airflow orchestration in a Docker environment.',
     technologies: ['Python', 'Apache Airflow', 'Docker', 'MySQL'],
@@ -34,7 +34,7 @@ export const projects = [
     ],
   },
   {
-    id: 'olist', number: '02', category: 'Data Analytics',
+    id: 'olist',
     title: 'Olist E-Commerce Analytics', titleId: 'project-title',
     context: 'Olist dataset / End-to-end analytics',
     description: 'From Python data profiling to a star-schema model in Power BI: exploring sales, delivery performance, and customer experience across the Brazilian Olist e-commerce dataset.',
@@ -49,11 +49,11 @@ export const projects = [
     ],
     metricsNote: 'Dataset overview · Sales and orders are rounded.',
     media: [
-      { src: executiveOverview, label: '01 / Executive overview', name: 'executive overview',
+      { src: executiveOverview, label: 'Executive overview', name: 'executive overview',
         alt: 'Executive overview dashboard for Brazilian E-Commerce Analytics', width: 1278, height: 720 },
-      { src: salesAnalysis, label: '02 / Sales analysis', name: 'sales analysis',
+      { src: salesAnalysis, label: 'Sales analysis', name: 'sales analysis',
         alt: 'Sales analysis dashboard for Brazilian E-Commerce Analytics', width: 1278, height: 718 },
-      { src: customerExperience, label: '03 / Customer experience', name: 'customer experience',
+      { src: customerExperience, label: 'Customer experience', name: 'customer experience',
         alt: 'Customer experience dashboard for Brazilian E-Commerce Analytics', width: 1277, height: 718 },
     ],
     details: {

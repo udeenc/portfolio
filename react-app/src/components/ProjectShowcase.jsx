@@ -11,7 +11,6 @@ export default function ProjectShowcase({ project }) {
   return (
     <article className={`work-showcase work-showcase--${project.id}`} aria-labelledby={project.titleId} data-work-reveal="">
       <header className="work-showcase__heading">
-        <p className="work-showcase__identity"><span>{project.number}</span><span aria-hidden="true"> / </span>{project.category}</p>
         <h3 id={project.titleId}>{project.title}</h3>
       </header>
       <div className="work-showcase__visual">

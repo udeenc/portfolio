@@ -37,7 +37,7 @@ function tokens(html) {
   })
 }
 
-test('V2 preserves Hero contracts, content outside Selected Work, section order, links, assets and licenses', async () => {
+test('A1 integrates About/Education, orders and numbers sections, and preserves Hero/gallery contracts', async () => {
   const root = fileURLToPath(new URL('../', import.meta.url))
   const server = await createServer({ root, server: { middlewareMode: true }, appType: 'custom' })
   try {
@@ -46,29 +46,57 @@ test('V2 preserves Hero contracts, content outside Selected Work, section order,
     const original = read('../../index.html').match(/<body>([\s\S]*?)<\/body>/)[1]
       // The original script also updates this year after loading.
       .replace(/(<span id="year">)\d{4}/, '$1' + new Date().getFullYear())
-    // W1 replaces Featured Projects; keep exact parity elsewhere and verify
-    // the approved Hero and Selected Work independently below.
+    // A1 explicitly replaces About and integrates Education/Projects. Preserve
+    // Header/Footer exactly and Skills/Contact apart from numbering.
     const heroPattern = /<section\b[^>]*\bid="home"[^>]*>[\s\S]*?<\/section>/
     const workPattern = /<section\b[^>]*\bid="featured"[^>]*>[\s\S]*?<\/section>/
     const hero = markup.match(heroPattern)[0]
-    const unchanged = html => html.replace(heroPattern, '').replace(workPattern, '')
-    assert.deepEqual(tokens(unchanged(markup)), tokens(unchanged(original)))
+    const section = (html, id) => html.match(new RegExp('<section\\b[^>]*\\bid="' + id + '"[^>]*>[\\s\\S]*?<\\/section>'))[0]
+    const removeNumbering = html => html
+      .replace(/<p class="eyebrow(?: homepage-label)?">[^<]*<\/p>/, '')
+      .replace(/<span class="skill-number"[^>]*>[^<]*<\/span>/g, '')
+    for (const id of ['skills', 'contact']) {
+      assert.deepEqual(tokens(removeNumbering(section(markup, id))), tokens(removeNumbering(section(original, id))))
+    }
+    for (const tag of ['header', 'footer']) {
+      const pattern = new RegExp('<' + tag + '\\b[^>]*>[\\s\\S]*?<\\/' + tag + '>')
+      assert.deepEqual(tokens(markup.match(pattern)[0]), tokens(original.match(pattern)[0]))
+    }
+    const about = section(markup, 'about')
+    const aboutHeadline = about.match(/<h2[^>]*>([\s\S]*?)<\/h2>/)[1]
+    assert.deepEqual(tokens(aboutHeadline).filter(token => token[0] === 'text').map(token => token[1]),
+      ['Curious by nature.', 'Driven by data.'])
+    assert.match(decode(about), /I'm a Computer Science student exploring how data systems are built, maintained, and transformed into meaningful insights\./)
+    const education = about.match(/<aside\b[^>]*\bid="education"[^>]*>[\s\S]*?<\/aside>/)[0]
+    for (const fact of ['BINUS University', 'B.Sc. in Computer Science', "Bachelor's degree in progress", '2028', '3.66', '/ 4.00']) assert(decode(education).includes(fact), fact)
+    assert.equal((markup.match(/BINUS University/g) || []).length, 1)
+    assert(!/<section\b[^>]*id="education"/.test(markup))
+    assert(!markup.includes('class="about-overlap"'))
+    assert.match(markup, /<\/section><section class="about-v2" id="about"/)
+    for (const strength of ['Ensure Data Quality', 'Build Reliable Data Pipelines', 'Analyze Problems Systematically',
+      'Solve Problems Collaboratively', 'Exchange Ideas and Feedback', 'Align Data with Business Needs']) assert(about.includes(strength), strength)
     const work = markup.match(workPattern)[0]
     const workTokens = tokens(work)
     const workElements = workTokens.filter(token => token[0] === 'start')
     const workText = workTokens.filter(token => token[0] === 'text').map(token => token[1])
     assert.equal(workElements.filter(token => token[1] === 'article').length, 2)
-    assert.deepEqual([...work.matchAll(/<h3\b[^>]*>([^<]*)<\/h3>/g)].map(match => match[1]),
+    assert.deepEqual([...work.matchAll(/<article\b[^>]*>[\s\S]*?<h3\b[^>]*>([^<]*)<\/h3>/g)].map(match => match[1]),
       ['Automated Data Pipeline', 'Olist E-Commerce Analytics'])
     for (const copy of ['02 / SELECTED WORK', 'Built with purpose.',
-      'A selection of projects exploring data pipelines, analytical systems, and meaningful insights.',
-      '01', '02', 'Data Engineering', 'Data Analytics']) assert(workText.includes(copy), copy)
+      'A selection of projects exploring data pipelines, analytical systems, and meaningful insights.']) assert(workText.includes(copy), copy)
+    assert(!work.includes('work-showcase__identity'))
+    assert(!workText.some(text => /^0\d(?:\s*\/|$)/.test(text) && text !== '02 / SELECTED WORK'))
+    assert(!workText.some(text => /^(?:Data Engineering|Data Analytics)$/i.test(text)))
+    for (const copy of ['More work, beyond the dashboard.', 'On GitHub', 'Additional projects',
+      'Explore my GitHub for additional projects in software, data, and computing.']) assert(workText.includes(copy), copy)
+    assert.match(work, /<aside\b[^>]*id="projects"/)
     // Retain every previous Olist fact, metric, analysis step and image caption;
     // only the requested section heading/project display title are replaced.
     const replaced = ['02 / Featured project', 'A closer look at the data.',
       'Analytics / Visualization', 'Brazilian E-Commerce Analytics']
     for (const token of tokens(original.match(workPattern)[0]).filter(token => token[0] === 'text')) {
-      if (!replaced.includes(token[1])) assert(workText.includes(token[1]), token[1])
+      const text = token[1].replace(/^0[123] \/ (?=Executive overview|Sales analysis|Customer experience)/, '')
+      if (!replaced.includes(text)) assert(workText.includes(text), text)
     }
     assert(workElements.some(token => token[2].href === 'https://github.com/udeenc/ecommerce-powerbi-analysis'))
     assert(!workElements.some(token => token[2].href === '#'))
@@ -86,7 +114,7 @@ test('V2 preserves Hero contracts, content outside Selected Work, section order,
     const olist = work.match(/<article\b[^>]*olist[^>]*>[\s\S]*?<\/article>/)[0]
     const olistElements = tokens(olist).filter(token => token[0] === 'start')
     assert.deepEqual([...olist.matchAll(/<button\b[^>]*>([^<]+)<\/button>/g)].map(match => match[1]),
-      ['01 / Executive overview', '02 / Sales analysis', '03 / Customer experience'])
+      ['Executive overview', 'Sales analysis', 'Customer experience'])
     assert.deepEqual(olistElements.filter(token => token[1] === 'button').map(token => token[2]['aria-pressed']), ['true', 'false', 'false'])
     assert.equal(olistElements.filter(token => token[1] === 'img').length, 1)
     assert.match(olistElements.find(token => token[1] === 'img')[2].src, /executive-overview\.png$/)
@@ -119,7 +147,9 @@ test('V2 preserves Hero contracts, content outside Selected Work, section order,
     assert.equal(headingLevels[0], 1)
     assert(headingLevels.every((level, i) => i === 0 || level <= headingLevels[i - 1] + 1))
     assert.deepEqual(elements.filter(token => token[1] === 'section').map(token => token[2].id),
-      ['home', 'about', 'featured', 'projects', 'skills', 'education', 'contact'])
+      ['home', 'about', 'featured', 'skills', 'contact'])
+    const numberedLabels = tokens(markup).filter(token => token[0] === 'text' && /^0\d\s*\//.test(token[1])).map(token => token[1])
+    assert.deepEqual(numberedLabels, ['01 / ABOUT ME', '02 / SELECTED WORK', '03 / SKILLS & CAPABILITIES', '04 / CONTACT'])
     assert.equal(elements.filter(token => token[1] === 'header' && token[2].class === 'site-header').length, 1)
     assert.equal(elements.filter(token => token[1] === 'main').length, 1)
     assert.equal(elements.filter(token => token[1] === 'footer').length, 1)

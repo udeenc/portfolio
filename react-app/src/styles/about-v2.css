@@ -1,0 +1,38 @@
+/* A1: About/Education and shared major-section labels. Legacy CSS stays intact. */
+.homepage-label { color: var(--v2-accent); font: .72rem/1.7 var(--v2-font-mono); text-transform: uppercase; letter-spacing: .1em; }
+.about-v2 { background: var(--v2-background); color: var(--v2-text); font-family: var(--v2-font-body); padding-block: clamp(72px, 8vw, 128px); }
+.about-v2__inner { width: min(1400px, calc(100% - 2 * max(var(--gutter), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px)))); display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .8fr); align-items: start; gap: clamp(40px, 6vw, 96px); }
+.about-v2__introduction { min-width: 0; }
+.about-v2__eyebrow { margin-bottom: 28px; }
+.about-v2 h2 { color: var(--v2-text); font: 500 clamp(2.35rem, 4.6vw, 5rem)/1.08 var(--v2-font-display); letter-spacing: -.05em; overflow-wrap: anywhere; }
+.about-v2 h2 span { display: block; }
+.about-v2 h2 span:last-child { color: var(--v2-accent); }
+.about-v2__lead { margin-top: 28px; max-width: 49ch; color: var(--v2-text); font-size: clamp(1rem, 1.2vw, 1.1rem); line-height: 1.85; }
+.about-v2__description { margin-top: 18px; max-width: 55ch; color: var(--v2-muted); font-size: .95rem; line-height: 1.85; }
+.about-v2__education { min-width: 0; margin-top: 48px; padding: clamp(24px, 3vw, 44px); border: 1px solid var(--v2-border); border-top: 2px solid var(--v2-accent-secondary); border-radius: 8px; background: var(--v2-surface); scroll-margin-top: 16px; }
+.about-v2__metadata { margin-bottom: 28px; color: var(--v2-accent-secondary); font: .68rem/1.7 var(--v2-font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.about-v2__education h3 { font: 500 clamp(1.5rem, 2.3vw, 2.2rem)/1.2 var(--v2-font-display); color: var(--v2-text); letter-spacing: -.035em; overflow-wrap: anywhere; }
+.about-v2__degree { color: var(--v2-text); margin-top: 14px; font-size: .95rem; }
+.about-v2__status { margin-top: 6px; color: var(--v2-muted); font-size: .8rem; }
+.about-v2__academic-details { margin: 32px 0 0; }
+.about-v2__academic-details > div { padding-block: 20px; border-top: 1px solid var(--v2-border); }
+.about-v2__academic-details > div:last-child { padding-bottom: 0; }
+.about-v2__academic-details dt { color: var(--v2-muted); font: .66rem/1.7 var(--v2-font-mono); }
+.about-v2__academic-details dd { margin: 8px 0 0; color: var(--v2-text); font: 500 clamp(1.4rem, 2.2vw, 2rem)/1.2 var(--v2-font-display); font-variant-numeric: tabular-nums; }
+.about-v2__academic-details dd span { color: var(--v2-muted); font-size: .85em; }
+.about-v2__strengths { grid-column: 1 / -1; min-width: 0; border-top: 1px solid var(--v2-border); padding-top: 28px; }
+.about-v2__strengths h3 { font: .7rem/1.7 var(--v2-font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--v2-muted); }
+.about-v2__strengths ul { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 28px; margin: 24px 0 0; padding: 0; }
+.about-v2__strengths li { padding-left: 14px; border-left: 1px solid var(--v2-accent); color: var(--v2-text); font-size: .85rem; line-height: 1.7; overflow-wrap: anywhere; }
+@media (max-width: 800px) {
+  .about-v2__inner { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+  .about-v2__education { margin-top: 0; }
+  .about-v2__strengths ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 430px) {
+  .about-v2 h2 { font-size: clamp(2rem, 9vw, 2.4rem); }
+  .about-v2__strengths ul { grid-template-columns: minmax(0, 1fr); }
+}
+@media (forced-colors: active) {
+  .about-v2__education, .about-v2__strengths, .about-v2__academic-details > div, .about-v2__strengths li { border-color: CanvasText; }
+}
