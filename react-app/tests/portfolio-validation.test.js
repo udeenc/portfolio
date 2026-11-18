@@ -47,7 +47,7 @@ test('A1 integrates About/Education, orders and numbers sections, and preserves 
       // The original script also updates this year after loading.
       .replace(/(<span id="year">)\d{4}/, '$1' + new Date().getFullYear())
     // A1 explicitly replaces About and integrates Education/Projects. Preserve
-    // Header/Footer exactly and Skills/Contact apart from numbering.
+    // Header/Footer exactly and Contact apart from numbering. S1 replaces Skills.
     const heroPattern = /<section\b[^>]*\bid="home"[^>]*>[\s\S]*?<\/section>/
     const workPattern = /<section\b[^>]*\bid="featured"[^>]*>[\s\S]*?<\/section>/
     const hero = markup.match(heroPattern)[0]
@@ -55,13 +55,39 @@ test('A1 integrates About/Education, orders and numbers sections, and preserves 
     const removeNumbering = html => html
       .replace(/<p class="eyebrow(?: homepage-label)?">[^<]*<\/p>/, '')
       .replace(/<span class="skill-number"[^>]*>[^<]*<\/span>/g, '')
-    for (const id of ['skills', 'contact']) {
+    for (const id of ['contact']) {
       assert.deepEqual(tokens(removeNumbering(section(markup, id))), tokens(removeNumbering(section(original, id))))
     }
     for (const tag of ['header', 'footer']) {
       const pattern = new RegExp('<' + tag + '\\b[^>]*>[\\s\\S]*?<\\/' + tag + '>')
       assert.deepEqual(tokens(markup.match(pattern)[0]), tokens(original.match(pattern)[0]))
     }
+    const skills = section(markup, 'skills')
+    const skillElements = tokens(skills).filter(token => token[0] === 'start')
+    const skillText = tokens(skills).filter(token => token[0] === 'text').map(token => token[1])
+    assert.equal(skillText.filter(text => /^0\d\s*\//.test(text)).length, 1)
+    assert(skillText.includes('03 / SKILLS & CAPABILITIES'))
+    assert(skillText.includes('Tools are part of the process.'))
+    assert(skillText.includes('The focus is on what I can build, analyze, and improve with them.'))
+    assert.deepEqual([...skills.matchAll(/<h3>([^<]+)<\/h3>/g)].map(match => decode(match[1])),
+      ['Data Engineering', 'Data Analytics', 'Databases & Data Modeling', 'Programming & Development'])
+    assert.equal(skillElements.filter(token => token[1] === 'article').length, 4)
+    assert.equal(skillElements.filter(token => token[1] === 'h2').length, 1)
+    assert.equal(skillElements.find(token => token[1] === 'h2')[2].id, 'skills-title')
+    const technologyLabels = [...skills.matchAll(/<li>([^<]+)<\/li>/g)].map(match => decode(match[1]))
+    assert.equal(new Set(technologyLabels).size, technologyLabels.length)
+    for (const label of ['Power BI', 'DAX', 'Power Query', 'Python', 'Git', 'Apache Airflow', 'Docker',
+      'MySQL', 'Dimensional modeling', 'Star schema', 'JavaScript', 'React', 'GitHub']) assert(technologyLabels.includes(label), label)
+    for (const list of skillElements.filter(token => token[1] === 'ul')) assert(list[2]['aria-label'])
+    assert(!skillElements.some(token => ['a', 'button', 'canvas', 'progress'].includes(token[1]) || 'tabindex' in token[2]))
+    assert(!/\d+%|expert|mastery|Tableau|AWS|Azure|Google Cloud/i.test(skills))
+    const skillsCSS = read('../src/styles/skills-v2.css')
+    assert.match(skillsCSS, /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/)
+    assert.match(skillsCSS, /@media \(max-width: 800px\)[\s\S]*grid-template-columns: minmax\(0, 1fr\)/)
+    assert.match(skillsCSS, /flex-wrap: wrap/)
+    assert.match(skillsCSS, /overflow-wrap: anywhere/)
+    assert(!/animation:|transition:|cursor:|:hover/.test(skillsCSS))
+    assert.match(read('../src/main.jsx'), /import '\.\/styles\/skills-v2\.css'/)
     const about = section(markup, 'about')
     const aboutHeadline = about.match(/<h2[^>]*>([\s\S]*?)<\/h2>/)[1]
     assert.deepEqual(tokens(aboutHeadline).filter(token => token[0] === 'text').map(token => token[1]),
