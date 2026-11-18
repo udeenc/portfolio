@@ -23,8 +23,7 @@ export default function ProjectShowcase({ project }) {
         </div>
         <div className="work-showcase__meta">
           <ProjectTags technologies={project.technologies} />
-          {(project.details || project.repository) && <div className="work-showcase__actions">
-            {project.details && <a className="work-showcase__link" href="#project-details">View Project <span aria-hidden="true">↓</span></a>}
+          {project.repository && <div className="work-showcase__actions">
             {project.repository && <a className="work-showcase__link" href={project.repository} target="_blank" rel="noopener noreferrer">
               GitHub Repository <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span>
             </a>}
@@ -39,16 +38,6 @@ export default function ProjectShowcase({ project }) {
           </div>)}
         </dl>
         <p className="work-showcase__metrics-note">{project.metricsNote}</p>
-      </div>}
-      {project.details && <div className="work-showcase__details" id="project-details" aria-labelledby="project-details-title">
-        <p className="work-showcase__context">{project.details.eyebrow}</p>
-        <h4 id="project-details-title">{project.details.title}</h4>
-        <ol className="work-showcase__process">
-          {project.details.steps.map(step => <li key={step.title}><h5>{step.title}</h5><p>{step.text}</p></li>)}
-        </ol>
-        <aside className="work-showcase__insight" aria-label="Analytical observation">
-          <p className="work-showcase__context">Analytical observation</p><p>{project.details.insight}</p>
-        </aside>
       </div>}
     </article>
   )

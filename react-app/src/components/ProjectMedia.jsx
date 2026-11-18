@@ -24,7 +24,7 @@ export default function ProjectMedia({ images, label = 'Olist dashboard screensh
         ))}
       </div>
       <figure id={panelId} aria-busy={state.pending !== null}>
-        <div className="project-media__viewport">
+        <div className={`project-media__viewport${image.presentation === 'diagram' ? ' project-media__viewport--diagram' : ''}`}>
           <a href={image.src} target="_blank" rel="noopener noreferrer"
             aria-label={`View full ${image.name ? `${image.name} dashboard` : image.label} (opens in a new tab)`}>
             {layers.map(index => {

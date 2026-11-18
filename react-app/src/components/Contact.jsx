@@ -1,9 +1,11 @@
+import { cvUrl } from '../data/contact.js'
+
 // Email and PDF approved by the owner; social destinations remain unchanged.
 const contactEntries = [
   { label: 'Email Me', href: 'mailto:wijayac2005@gmail.com' },
   { label: 'GitHub', href: 'https://github.com/udeenc', newTab: true },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/candra-wijaya-36a008347', newTab: true },
-  { label: 'View My CV', href: `${import.meta.env.BASE_URL}Candra_Wijaya_CV.pdf`, newTab: true, document: true },
+  { label: 'View My CV', href: cvUrl, newTab: true, document: true },
 ]
 
 function EntryContent({ entry }) {

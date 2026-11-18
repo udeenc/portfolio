@@ -1,22 +1,22 @@
 const capabilities = [
   {
     title: 'Data Engineering',
-    description: 'Extract, clean, and load CSV data into MySQL, with Python transformations orchestrated by Airflow in a Docker environment.',
+    skills: ['CSV extraction and loading', 'Python data cleaning and transformation', 'Pipeline orchestration in containerized environments'],
     technologies: ['Apache Airflow', 'Docker'],
   },
   {
     title: 'Data Analytics',
-    description: 'Profile datasets and turn sales, delivery, and customer experience questions into analytical reports and dashboards.',
+    skills: ['Dataset profiling', 'Sales, delivery, and customer experience analysis', 'Analytical reporting and dashboards'],
     technologies: ['Power BI', 'Power Query', 'DAX'],
   },
   {
     title: 'Databases & Data Modeling',
-    description: 'Structure data in relational tables and build star-schema models with fact and dimension tables for analysis.',
+    skills: ['Relational data structures', 'Fact and dimension tables', 'Data modeling for analysis'],
     technologies: ['MySQL', 'Dimensional modeling', 'Star schema'],
   },
   {
     title: 'Programming & Development',
-    description: 'Write data preparation scripts and build component-based web interfaces, keeping project changes under version control.',
+    skills: ['Data preparation scripts', 'Component-based web interfaces', 'Project version control'],
     technologies: ['Python', 'JavaScript', 'React', 'Git', 'GitHub'],
   },
 ]
@@ -25,16 +25,12 @@ export default function Skills() {
   return (
     <section className="skills-v2" id="skills" aria-labelledby="skills-title">
       <div className="skills-v2__inner container">
-        <div className="skills-v2__intro">
-          <p className="homepage-label skills-v2__eyebrow">03 / SKILLS &amp; CAPABILITIES</p>
-          <h2 id="skills-title">Tools are part of the process.</h2>
-          <p className="skills-v2__description">The focus is on what I can build, analyze, and improve with them.</p>
-        </div>
+        <h2 className="homepage-label skills-v2__label" id="skills-title">03 / SKILLS &amp; CAPABILITIES</h2>
         <div className="skills-v2__grid">
-          {capabilities.map(({ title, description, technologies }) => (
+          {capabilities.map(({ title, skills, technologies }) => (
             <article className="skills-v2__capability" key={title}>
               <h3>{title}</h3>
-              <p>{description}</p>
+              <ul className="skills-v2__skills" aria-label={`${title} capabilities`}>{skills.map(skill => <li key={skill}>{skill}</li>)}</ul>
               <ul className="skills-v2__technologies" aria-label={`${title} tools and methods`}>
                 {technologies.map(technology => <li key={technology}>{technology}</li>)}
               </ul>

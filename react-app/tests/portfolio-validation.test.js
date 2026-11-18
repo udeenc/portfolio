@@ -69,10 +69,11 @@ test('A1 integrates About/Education, orders and numbers sections, and preserves 
     const skills = section(markup, 'skills')
     const skillElements = tokens(skills).filter(token => token[0] === 'start')
     const skillText = tokens(skills).filter(token => token[0] === 'text').map(token => token[1])
-    assert.equal(skillText.filter(text => /^0\d\s*\//.test(text)).length, 1)
-    assert(skillText.includes('03 / SKILLS & CAPABILITIES'))
-    assert(skillText.includes('Tools are part of the process.'))
-    assert(skillText.includes('The focus is on what I can build, analyze, and improve with them.'))
+    assert.deepEqual(skillText.filter(text => /^0\d\s*\//.test(text)), ['03 / SKILLS & CAPABILITIES'])
+    assert(!skills.includes('skills-v2__intro'))
+    assert.match(skills, /<h2 class="homepage-label skills-v2__label" id="skills-title">03 \/ SKILLS &amp; CAPABILITIES<\/h2>/)
+    assert(!/Tools are part|The focus is on/.test(skills))
+    assert.equal((skills.match(/class="skills-v2__skills"/g) || []).length, 4)
     assert.deepEqual([...skills.matchAll(/<h3>([^<]+)<\/h3>/g)].map(match => decode(match[1])),
       ['Data Engineering', 'Data Analytics', 'Databases & Data Modeling', 'Programming & Development'])
     assert.equal(skillElements.filter(token => token[1] === 'article').length, 4)
@@ -117,14 +118,13 @@ test('A1 integrates About/Education, orders and numbers sections, and preserves 
     assert(!work.includes('work-showcase__identity'))
     assert(!workText.some(text => /^0\d(?:\s*\/|$)/.test(text) && text !== '02 / SELECTED WORK'))
     assert(!workText.some(text => /^(?:Data Engineering|Data Analytics)$/i.test(text)))
-    for (const copy of ['More work, beyond the dashboard.', 'On GitHub', 'Additional projects',
-      'Explore my GitHub for additional projects in software, data, and computing.']) assert(workText.includes(copy), copy)
-    assert.match(work, /<aside\b[^>]*id="projects"/)
-    // Retain every previous Olist fact, metric, analysis step and image caption;
-    // only the requested section heading/project display title are replaced.
+    assert(!/On GitHub|Behind the dashboards|project-details|id="projects"|selected-work__more/.test(work))
+    // Preserve Olist summary, metrics and captions; feedback explicitly removes
+    // the old detail block and its View Project anchor.
     const replaced = ['02 / Featured project', 'A closer look at the data.',
-      'Analytics / Visualization', 'Brazilian E-Commerce Analytics']
-    for (const token of tokens(original.match(workPattern)[0]).filter(token => token[0] === 'text')) {
+      'Analytics / Visualization', 'Brazilian E-Commerce Analytics', 'View Project', '↓']
+    const originalWorkSummary = original.match(workPattern)[0].split('<div class="project-details"')[0]
+    for (const token of tokens(originalWorkSummary).filter(token => token[0] === 'text')) {
       const text = token[1].replace(/^0[123] \/ (?=Executive overview|Sales analysis|Customer experience)/, '')
       if (!replaced.includes(text)) assert(workText.includes(text), text)
     }
@@ -140,6 +140,10 @@ test('A1 integrates About/Education, orders and numbers sections, and preserves 
     assert.equal(new Set(switches.map(token => token[2]['aria-controls'])).size, 1)
     assert.equal(pipelineElements.filter(token => token[1] === 'img').length, 1)
     assert.match(pipelineElements.find(token => token[1] === 'img')[2].src, /architecture\.png$/)
+    assert.match(pipeline, /project-media__viewport--diagram/)
+    for (const article of work.matchAll(/<article\b[^>]*>[\s\S]*?<\/article>/g)) {
+      assert.match(article[0], /^<article[^>]*><header class="work-showcase__heading"><h3/)
+    }
     assert(!/<canvas|\d+%|\d+K|href="https:\/\/github/.test(pipeline))
     const olist = work.match(/<article\b[^>]*olist[^>]*>[\s\S]*?<\/article>/)[0]
     const olistElements = tokens(olist).filter(token => token[0] === 'start')
@@ -164,7 +168,10 @@ test('A1 integrates About/Education, orders and numbers sections, and preserves 
     assert.match(hero, /Exploring data engineering and analytics through reliable pipelines, thoughtful analysis, and practical projects\./)
     const heroElements = tokens(hero).filter(token => token[0] === 'start')
     const heroLinks = heroElements.filter(token => token[1] === 'a')
-    assert.deepEqual(heroLinks.map(token => token[2].href), ['#featured', '#about', '#about'])
+    assert.deepEqual(heroLinks.map(token => token[2].href), ['#featured', '/portfolio/Candra_Wijaya_CV.pdf', '#about'])
+    assert.match(hero, /Download CV/)
+    assert.equal(heroLinks[1][2].target, '_blank')
+    assert.equal(heroLinks[1][2].rel, 'noopener noreferrer')
     const svg = heroElements.find(token => token[1] === 'svg')[2]
     assert.equal(svg['aria-hidden'], 'true')
     assert.equal(svg.focusable, 'false')
@@ -298,7 +305,8 @@ test('Contact activates owner-approved email and base-aware CV while preserving 
     assert.match(rows[3], /PDF, opens in a new tab/)
     assert.equal((contact.match(/opens in a new tab/g) || []).length, 3)
     assert(!/href="#"/.test(contact))
-    assert.match(read('../src/components/Contact.jsx'), /import\.meta\.env\.BASE_URL/)
+    assert.match(read('../src/data/contact.js'), /import\.meta\.env\.BASE_URL/)
+    for (const component of ['Contact', 'Hero']) assert.match(read('../src/components/' + component + '.jsx'), /import \{ cvUrl \} from '\.\.\/data\/contact\.js'/)
     const pdf = readFileSync(new URL('../public/Candra_Wijaya_CV.pdf', import.meta.url))
     assert(pdf.subarray(0, 5).equals(Buffer.from('%PDF-')))
     assert(pdf.subarray(-1024).toString('latin1').includes('%%EOF'))
