@@ -262,7 +262,7 @@ test('F1B metadata uses the verified production URL, V2 theme, minimal favicon a
   assert(!/localhost|127\.0\.0\.1/.test(html))
 })
 
-test('C1 preserves verified contact destinations and footer, with honest noninteractive unavailable entries', async () => {
+test('Contact activates owner-approved email and base-aware CV while preserving social destinations and footer', async () => {
   const root = fileURLToPath(new URL('../', import.meta.url))
   const server = await createServer({ root, server: { middlewareMode: true }, appType: 'custom' })
   try {
@@ -282,21 +282,27 @@ test('C1 preserves verified contact destinations and footer, with honest noninte
     assert.equal(rows.length, 4)
     assert.deepEqual(rows.map(row => decode(row.match(/class="contact-v2__label">([^<]+)</)[1])),
       ['Email Me', 'GitHub', 'LinkedIn', 'View My CV'])
-    for (const [index, status] of [[0, 'Unavailable'], [3, 'Coming Soon']]) {
-      assert(rows[index].includes(status))
-      assert.match(rows[index], /^<div\b/)
-      assert(!/<a\b|<button\b|href=|tabindex=|role=|download=/.test(rows[index]))
-    }
+    assert(rows.every(row => /^<a\b/.test(row)))
+    assert(!/Unavailable|Coming Soon|row--unavailable/.test(contact))
     assert.match(rows[3], /<svg[^>]*aria-hidden="true"[^>]*focusable="false"/)
     const links = contactTokens.filter(token => token[0] === 'start' && token[1] === 'a').map(token => token[2])
-    assert.deepEqual(links.map(link => link.href), ['https://github.com/udeenc', 'https://www.linkedin.com/in/candra-wijaya-36a008347'])
-    for (const link of links) {
-      assert(original.includes('href="' + link.href + '"'), 'Must reuse an existing destination')
+    assert.deepEqual(links.map(link => link.href), ['mailto:wijayac2005@gmail.com', 'https://github.com/udeenc',
+      'https://www.linkedin.com/in/candra-wijaya-36a008347', '/portfolio/Candra_Wijaya_CV.pdf'])
+    assert.equal(links[0].target, undefined) // Email uses the configured mail handler.
+    for (const link of links.slice(1)) {
       assert.equal(link.target, '_blank')
       assert.equal(link.rel, 'noopener noreferrer')
     }
-    assert.equal((contact.match(/opens in a new tab/g) || []).length, 2)
-    assert(!/mailto:|\.pdf|href="#"/.test(contact)) // No verified email or CV exists.
+    for (const link of links.slice(1, 3)) assert(original.includes('href="' + link.href + '"'), 'Preserve social destinations')
+    assert.match(rows[3], /contact-v2__row--cv/)
+    assert.match(rows[3], /PDF, opens in a new tab/)
+    assert.equal((contact.match(/opens in a new tab/g) || []).length, 3)
+    assert(!/href="#"/.test(contact))
+    assert.match(read('../src/components/Contact.jsx'), /import\.meta\.env\.BASE_URL/)
+    const pdf = readFileSync(new URL('../public/Candra_Wijaya_CV.pdf', import.meta.url))
+    assert(pdf.subarray(0, 5).equals(Buffer.from('%PDF-')))
+    assert(pdf.subarray(-1024).toString('latin1').includes('%%EOF'))
+    assert(pdf.length > 10000, 'The approved document must not be placeholder bytes')
     const footerPattern = /<footer\b[^>]*>[\s\S]*?<\/footer>/
     const footer = markup.match(footerPattern)[0]
     const originalFooter = original.match(footerPattern)[0].replace(/(<span id="year">)\d{4}/, '$1' + new Date().getFullYear())

@@ -1,10 +1,9 @@
-// Only repository-verified destinations are enabled. Add a verified destination
-// to an unavailable entry here when ready; the same row supports native links.
+// Email and PDF approved by the owner; social destinations remain unchanged.
 const contactEntries = [
-  { label: 'Email Me', href: null, status: 'Unavailable' },
-  { label: 'GitHub', href: 'https://github.com/udeenc' },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/candra-wijaya-36a008347' },
-  { label: 'View My CV', href: null, status: 'Coming Soon', document: true },
+  { label: 'Email Me', href: 'mailto:wijayac2005@gmail.com' },
+  { label: 'GitHub', href: 'https://github.com/udeenc', newTab: true },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/candra-wijaya-36a008347', newTab: true },
+  { label: 'View My CV', href: `${import.meta.env.BASE_URL}Candra_Wijaya_CV.pdf`, newTab: true, document: true },
 ]
 
 function EntryContent({ entry }) {
@@ -17,7 +16,7 @@ function EntryContent({ entry }) {
           <path d="M14 3H6v18h12V7l-4-4Z M14 3v5h4 M9 12h6 M9 16h6" />
         </svg>
       ) : <span className="contact-v2__icon" aria-hidden="true">{entry.href ? '↗' : '—'}</span>}
-      {entry.href && <span className="sr-only"> (opens in a new tab)</span>}
+      {entry.newTab && <span className="sr-only">{entry.document ? ' (PDF, opens in a new tab)' : ' (opens in a new tab)'}</span>}
     </>
   )
 }
@@ -35,7 +34,7 @@ export default function Contact() {
           {contactEntries.map(entry => (
             <li key={entry.label}>
               {entry.href ? (
-                <a className="contact-v2__row" href={entry.href} target="_blank" rel="noopener noreferrer">
+                <a className={`contact-v2__row${entry.document ? ' contact-v2__row--cv' : ''}`} href={entry.href} target={entry.newTab ? '_blank' : undefined} rel={entry.newTab ? 'noopener noreferrer' : undefined}>
                   <EntryContent entry={entry} />
                 </a>
               ) : (
