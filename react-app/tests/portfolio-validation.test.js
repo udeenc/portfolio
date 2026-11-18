@@ -215,7 +215,11 @@ test('A1 integrates About/Education, orders and numbers sections, and preserves 
     const head = html => html.match(/<head>([\s\S]*?)<\/head>/)[1]
     const fonts = html => [...head(html).matchAll(/<link[^>]*href="(https:[^"]+)"/g)].map(match => match[1])
     const currentFonts = fonts(read('../index.html'))
-    for (const font of fonts(read('../../index.html'))) assert(currentFonts.includes(font))
+    // F1B removes only the obsolete V1 Barlow network request. Its retained
+    // fallback styles do not match the active V2 sections.
+    for (const font of fonts(read('../../index.html')).filter(url => !url.includes('family=Barlow+Condensed'))) assert(currentFonts.includes(font))
+    assert(!currentFonts.some(url => url.includes('Barlow')))
+    assert(!elements.some(token => (token[2].class || '').split(' ').some(name => ['hero', 'about'].includes(name))))
     for (const family of ['Inter', 'JetBrains+Mono', 'Space+Grotesk']) {
       assert(currentFonts.some(url => url.includes('family=' + family)))
     }
@@ -228,6 +232,34 @@ test('A1 integrates About/Education, orders and numbers sections, and preserves 
   } finally {
     await server.close()
   }
+})
+
+test('F1B metadata uses the verified production URL, V2 theme, minimal favicon and text-only sharing cards', () => {
+  const html = read('../index.html')
+  const title = 'Candra Wijaya | Data Engineering & Analytics Portfolio'
+  const description = 'Explore projects in data engineering, analytics, ETL pipelines, and data visualization by Candra Wijaya.'
+  const head = tokens(html.match(/<head>([\s\S]*?)<\/head>/)[1])
+  const elements = head.filter(token => token[0] === 'start').map(token => [token[1], token[2]])
+  const meta = key => elements.filter(([tag, attrs]) => tag === 'meta' && (attrs.name === key || attrs.property === key)).map(([, attrs]) => attrs.content)
+  assert.equal(decode(html.match(/<title>([^<]+)<\/title>/)[1]), title)
+  for (const key of ['description', 'og:description', 'twitter:description']) assert.deepEqual(meta(key), [description])
+  for (const key of ['og:title', 'twitter:title']) assert.deepEqual(meta(key), [title])
+  assert.deepEqual(meta('theme-color'), ['#080D16'])
+  assert.deepEqual(meta('og:type'), ['website'])
+  assert.deepEqual(meta('og:url'), ['https://udeenc.github.io/portfolio/'])
+  assert.deepEqual(meta('twitter:card'), ['summary'])
+  assert.deepEqual(meta('og:image'), [])
+  assert.deepEqual(meta('twitter:image'), [])
+  assert.deepEqual(elements.filter(([tag, attrs]) => tag === 'link' && attrs.rel === 'canonical').map(([, attrs]) => attrs.href), ['https://udeenc.github.io/portfolio/'])
+  const icons = elements.filter(([tag, attrs]) => tag === 'link' && attrs.rel === 'icon')
+  assert.equal(icons.length, 1)
+  assert.equal(icons[0][1].href, '%BASE_URL%favicon.svg')
+  assert.equal(icons[0][1].type, 'image/svg+xml')
+  const favicon = read('../public/favicon.svg')
+  assert.match(favicon, /viewBox="0 0 64 64"/)
+  for (const color of ['#080D16', '#61E8DB']) assert(favicon.includes(color))
+  assert(!/<script|<image|<foreignObject|\bhref=/.test(favicon))
+  assert(!/localhost|127\.0\.0\.1/.test(html))
 })
 
 test('C1 preserves verified contact destinations and footer, with honest noninteractive unavailable entries', async () => {
