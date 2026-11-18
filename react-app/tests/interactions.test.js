@@ -175,6 +175,10 @@ test('cursor trails at .25, resolves hover during scroll, and respects native/to
   e.doc.fire('scroll')
   assert(cursor.classList.contains('is-interactive'))
   assert(e.root.classList.contains('custom-cursor-active'))
+  e.doc.fire('keydown', { key: 'Tab' })
+  assert(!cursor.classList.contains('is-visible'))
+  assert(!e.root.classList.contains('custom-cursor-active'))
+  e.doc.fire('pointermove', { pointerType: 'mouse', clientX: 100, clientY: 40, target: e.hero })
   e.hero.editable = true; e.doc.fire('scroll')
   assert(!e.root.classList.contains('custom-cursor-active'))
   e.doc.fire('pointermove', { pointerType: 'touch' })
@@ -243,7 +247,7 @@ function gpu() {
 
 test('Orb retains shader source, isolates resources, and survives mount/cleanup replay', () => {
   const original = readFileSync(new URL('../../js/hero-orb.js', import.meta.url), 'utf8').replace(/\r\n/g, '\n')
-  const migrated = readFileSync(new URL('../src/effects/orbRenderer.js', import.meta.url), 'utf8')
+  const migrated = readFileSync(new URL('../src/effects/orbRenderer.js', import.meta.url), 'utf8').replace(/\r\n/g, '\n')
   for (const name of ['VERTEX', 'FRAGMENT']) {
     const shader = new RegExp('const ' + name + ' = `([\\s\\S]*?)`;')
     assert.equal(original.match(shader)[1], migrated.match(shader)[1])

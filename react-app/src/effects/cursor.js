@@ -89,6 +89,7 @@ export function mountCursor(cursor) {
     const options = { passive: true, signal: controller.signal };
     on(document, 'pointermove', move, options);
     on(document, 'pointerover', move, options);
+    on(document, 'keydown', event => { if (event.key === 'Tab') hide(); }, options);
     // Child transitions and DOM changes must not be mistaken for a viewport exit.
     on(document.documentElement, 'pointerleave', hide, options);
     on(document, 'pointerdown', event => { if (event.pointerType !== 'mouse') hide(); }, options);

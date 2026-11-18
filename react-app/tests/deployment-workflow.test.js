@@ -5,6 +5,17 @@ import { readFileSync } from 'node:fs'
 const workflow = readFileSync(new URL('../../.github/workflows/deploy-react-pages.yml', import.meta.url), 'utf8')
   .replace(/\r\n/g, '\n')
 
+test('validation CI covers both feature branches and main pull requests without publishing permissions or actions', () => {
+  const ci = readFileSync(new URL('../../.github/workflows/react-migration-ci.yml', import.meta.url), 'utf8').replace(/\r\n/g, '\n')
+  assert.match(ci, /on:\n  push:\n    branches: \[feature\/react-migration, feature\/portfolio-v2\]\n  pull_request:\n    branches: \[main\]/)
+  assert.match(ci, /permissions:\n  contents: read/)
+  assert.match(ci, /runs-on: ubuntu-latest/)
+  assert.match(ci, /node-version: '24'/)
+  assert.match(ci, /working-directory: react-app/)
+  for (const command of ['npm ci', 'npm run lint', 'npm test', 'npm run build']) assert(ci.includes('run: ' + command))
+  assert(!/pages: write|id-token: write|upload-pages-artifact|deploy-pages|configure-pages/.test(ci))
+})
+
 // actionlint validates YAML/expression syntax. Evaluate the actual simple boolean
 // guards here to exercise unset/false flags and event/ref/repository combinations.
 function conditionAfter(marker) {

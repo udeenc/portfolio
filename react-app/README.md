@@ -1,4 +1,19 @@
-﻿# Portfolio React migration - Phase 5B release preparation
+﻿# Portfolio V2 ? Immersive Data Lab
+
+The current feature branch adds **W2: Selected Work reveals, hover emphasis and
+shared screenshot galleries** after [W1](SELECTED-WORK-W1.md) and the committed
+[Hero V2 H5 checkpoint](HERO-V2-H5.md) (`12bc123`). See
+[SELECTED-WORK-W2.md](SELECTED-WORK-W2.md) for interaction/accessibility behavior,
+validation and required browser review. The approved Hero remains unchanged.
+W3/W4 detail pages and deployment are outside this work.
+
+The [2026-11-18 progress checkpoint](LOCAL-PROGRESS-CHECKPOINT.md) records completed
+W1/W2 implementation, owner-approved Hero/Selected Work layout appearance and the
+current build, lint, 34-test and production asset validation results.
+
+## Migration and release history
+
+The notes below record the earlier React migration and release preparation.
 
 The existing portfolio layout, content, CSS, assets, and interactions are now in
 React + Vite inside `react-app/`, on `feature/react-migration`. The original root
@@ -148,3 +163,12 @@ it independently. After authorized cutover, smoke-test the public site, includin
 
 Phase 5B preparation is ready for draft PR review. Remote variable false
 confirmation and explicit merge/cutover/deployment approval are still required.
+
+## Portfolio V2 H2 — interactive constellation
+
+The H1 Hero now progressively enhances its SVG with an isolated, lazy-loaded
+Three.js constellation on capable desktop devices. Mobile, reduced-motion and
+failure paths retain the unchanged SVG. See [HERO-V2-H2.md](HERO-V2-H2.md) for
+architecture, dependency/license details, performance tradeoffs, validation and
+the required manual GPU/visual signoff before H3. H2 supersedes the H1 static-only
+renderer description; the migration notes above describe the earlier V1 work.

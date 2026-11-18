@@ -4,10 +4,8 @@ import { mountSmoothScroll } from './effects/smoothScroll.js'
 import Header from './components/Header.jsx'
 import Hero from './components/Hero.jsx'
 import About from './components/About.jsx'
-import FeaturedProjects from './components/FeaturedProjects.jsx'
-import Projects from './components/Projects.jsx'
+import SelectedWork from './components/SelectedWork.jsx'
 import Skills from './components/Skills.jsx'
-import Education from './components/Education.jsx'
 import Contact from './components/Contact.jsx'
 import Footer from './components/Footer.jsx'
 
@@ -22,10 +20,8 @@ export default function App() {
       <main id="main">
         <Hero />
         <About />
-        <FeaturedProjects />
-        <Projects />
+        <SelectedWork />
         <Skills />
-        <Education />
         <Contact />
       </main>
       <Footer />
