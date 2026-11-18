@@ -1,23 +1,19 @@
 /* S1: static capability groups; scoped to preserve the approved sections. */
 .skills-v2 { background: var(--v2-background); color: var(--v2-text); font-family: var(--v2-font-body); padding-block: clamp(72px, 8vw, 128px); }
 .skills-v2__inner { width: min(1400px, calc(100% - 2 * max(var(--gutter), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px)))); }
-.skills-v2__intro { max-width: 900px; margin-bottom: clamp(36px, 5vw, 64px); }
-.skills-v2__eyebrow { margin-bottom: 24px; }
-.skills-v2 h2 { color: var(--v2-text); max-width: 19ch; font: 500 clamp(2.35rem, 4.6vw, 5rem)/1.08 var(--v2-font-display); letter-spacing: -.05em; overflow-wrap: anywhere; }
-.skills-v2__description { margin-top: 24px; max-width: 52ch; color: var(--v2-muted); font-size: clamp(1rem, 1.2vw, 1.1rem); line-height: 1.85; }
+.skills-v2__label { margin-bottom: 32px; }
 .skills-v2__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 .skills-v2__capability { min-width: 0; padding: clamp(24px, 3vw, 40px); background: var(--v2-surface); border: 1px solid var(--v2-border); border-top: 2px solid var(--v2-accent); border-radius: 6px; }
 .skills-v2__capability:nth-child(even) { border-top-color: var(--v2-accent-secondary); }
 .skills-v2__capability h3 { color: var(--v2-text); font: 500 clamp(1.35rem, 2vw, 1.75rem)/1.3 var(--v2-font-display); letter-spacing: -.025em; overflow-wrap: anywhere; }
-.skills-v2__capability > p { margin-top: 16px; max-width: 53ch; color: var(--v2-muted); font-size: .95rem; line-height: 1.85; }
+.skills-v2__skills { margin: 24px 0 0; padding-left: 20px; color: var(--v2-text); font-size: clamp(1rem, 1.3vw, 1.1rem); line-height: 1.8; }
+.skills-v2__skills li { padding-left: 4px; margin-block: 10px; overflow-wrap: anywhere; }
+.skills-v2__skills li::marker { color: var(--v2-accent); }
 .skills-v2__technologies { display: flex; flex-wrap: wrap; gap: 8px 16px; list-style: none; margin: 28px 0 0; padding: 20px 0 0; border-top: 1px solid var(--v2-border); }
-.skills-v2__technologies li { max-width: 100%; color: var(--v2-accent); font: .75rem/1.8 var(--v2-font-mono); overflow-wrap: anywhere; }
+.skills-v2__technologies li { max-width: 100%; color: var(--v2-accent); font: .95rem/1.8 var(--v2-font-mono); overflow-wrap: anywhere; }
 .skills-v2__capability:nth-child(even) .skills-v2__technologies li { color: var(--v2-accent-secondary); }
 @media (max-width: 800px) {
   .skills-v2__grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-}
-@media (max-width: 430px) {
-  .skills-v2 h2 { font-size: clamp(2rem, 9vw, 2.4rem); }
 }
 @media (forced-colors: active) {
   .skills-v2__capability, .skills-v2__technologies { border-color: CanvasText; }

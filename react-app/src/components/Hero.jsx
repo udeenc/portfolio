@@ -1,4 +1,5 @@
 import InteractiveConstellation from './InteractiveConstellation.jsx'
+import { cvUrl } from '../data/contact.js'
 
 export default function Hero() {
   return (
@@ -19,8 +20,8 @@ export default function Hero() {
             <a className="lab-hero__cta lab-hero__cta--primary" href="#featured">
               Explore Work <span aria-hidden="true">↗</span>
             </a>
-            <a className="lab-hero__cta lab-hero__cta--secondary" href="#about">
-              About Me <span aria-hidden="true">↗</span>
+            <a className="lab-hero__cta lab-hero__cta--secondary" href={cvUrl} target="_blank" rel="noopener noreferrer">
+              Download CV <span aria-hidden="true">↗</span><span className="sr-only"> (PDF, opens in a new tab)</span>
             </a>
           </div>
         </div>

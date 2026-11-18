@@ -2,7 +2,6 @@ import { projects } from '../data/projects.js'
 import ProjectShowcase from './ProjectShowcase.jsx'
 import { useEffect, useRef } from 'react'
 import { mountWorkReveal } from '../effects/workReveal.js'
-import Projects from './Projects.jsx'
 
 export default function SelectedWork() {
   const section = useRef(null)
@@ -18,7 +17,6 @@ export default function SelectedWork() {
         <div className="selected-work__projects">
           {projects.map(project => <ProjectShowcase key={project.id} project={project} />)}
         </div>
-        <Projects />
       </div>
     </section>
   )
