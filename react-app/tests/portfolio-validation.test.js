@@ -37,7 +37,7 @@ function tokens(html) {
   })
 }
 
-test('V2 H1 preserves all non-Hero content, section order, links, assets and licenses', async () => {
+test('V2 preserves Hero contracts, content outside Selected Work, section order, links, assets and licenses', async () => {
   const root = fileURLToPath(new URL('../', import.meta.url))
   const server = await createServer({ root, server: { middlewareMode: true }, appType: 'custom' })
   try {
@@ -46,11 +46,59 @@ test('V2 H1 preserves all non-Hero content, section order, links, assets and lic
     const original = read('../../index.html').match(/<body>([\s\S]*?)<\/body>/)[1]
       // The original script also updates this year after loading.
       .replace(/(<span id="year">)\d{4}/, '$1' + new Date().getFullYear())
-    // H1 intentionally replaces only the Hero. Keep exact parity checks for
-    // navigation, About, every project/other section, and footer.
+    // W1 replaces Featured Projects; keep exact parity elsewhere and verify
+    // the approved Hero and Selected Work independently below.
     const heroPattern = /<section\b[^>]*\bid="home"[^>]*>[\s\S]*?<\/section>/
+    const workPattern = /<section\b[^>]*\bid="featured"[^>]*>[\s\S]*?<\/section>/
     const hero = markup.match(heroPattern)[0]
-    assert.deepEqual(tokens(markup.replace(heroPattern, '')), tokens(original.replace(heroPattern, '')))
+    const unchanged = html => html.replace(heroPattern, '').replace(workPattern, '')
+    assert.deepEqual(tokens(unchanged(markup)), tokens(unchanged(original)))
+    const work = markup.match(workPattern)[0]
+    const workTokens = tokens(work)
+    const workElements = workTokens.filter(token => token[0] === 'start')
+    const workText = workTokens.filter(token => token[0] === 'text').map(token => token[1])
+    assert.equal(workElements.filter(token => token[1] === 'article').length, 2)
+    assert.deepEqual([...work.matchAll(/<h3\b[^>]*>([^<]*)<\/h3>/g)].map(match => match[1]),
+      ['Automated Data Pipeline', 'Olist E-Commerce Analytics'])
+    for (const copy of ['02 / SELECTED WORK', 'Built with purpose.',
+      'A selection of projects exploring data pipelines, analytical systems, and meaningful insights.',
+      '01', '02', 'Data Engineering', 'Data Analytics']) assert(workText.includes(copy), copy)
+    // Retain every previous Olist fact, metric, analysis step and image caption;
+    // only the requested section heading/project display title are replaced.
+    const replaced = ['02 / Featured project', 'A closer look at the data.',
+      'Analytics / Visualization', 'Brazilian E-Commerce Analytics']
+    for (const token of tokens(original.match(workPattern)[0]).filter(token => token[0] === 'text')) {
+      if (!replaced.includes(token[1])) assert(workText.includes(token[1]), token[1])
+    }
+    assert(workElements.some(token => token[2].href === 'https://github.com/udeenc/ecommerce-powerbi-analysis'))
+    assert(!workElements.some(token => token[2].href === '#'))
+    const pipeline = work.match(/<article\b[^>]*pipeline[^>]*>[\s\S]*?<\/article>/)[0]
+    const pipelineElements = tokens(pipeline).filter(token => token[0] === 'start')
+    const switches = pipelineElements.filter(token => token[1] === 'button')
+    assert.deepEqual([...pipeline.matchAll(/<button\b[^>]*>([^<]+)<\/button>/g)].map(match => match[1]),
+      ['Architecture Diagram', 'Airflow DAG', 'Star Schema'])
+    assert.deepEqual(switches.map(token => token[2]['aria-pressed']), ['true', 'false', 'false'])
+    assert(switches.every(token => token[2].type === 'button'))
+    assert.equal(new Set(switches.map(token => token[2]['aria-controls'])).size, 1)
+    assert.equal(pipelineElements.filter(token => token[1] === 'img').length, 1)
+    assert.match(pipelineElements.find(token => token[1] === 'img')[2].src, /architecture\.png$/)
+    assert(!/<canvas|\d+%|\d+K|href="https:\/\/github/.test(pipeline))
+    const olist = work.match(/<article\b[^>]*olist[^>]*>[\s\S]*?<\/article>/)[0]
+    const olistElements = tokens(olist).filter(token => token[0] === 'start')
+    assert.deepEqual([...olist.matchAll(/<button\b[^>]*>([^<]+)<\/button>/g)].map(match => match[1]),
+      ['01 / Executive overview', '02 / Sales analysis', '03 / Customer experience'])
+    assert.deepEqual(olistElements.filter(token => token[1] === 'button').map(token => token[2]['aria-pressed']), ['true', 'false', 'false'])
+    assert.equal(olistElements.filter(token => token[1] === 'img').length, 1)
+    assert.match(olistElements.find(token => token[1] === 'img')[2].src, /executive-overview\.png$/)
+    assert(!/aria-live=/.test(pipeline + olist)) // Pressed state is the selection announcement.
+    const { projects } = await server.ssrLoadModule('/src/data/projects.js')
+    assert.deepEqual(projects[0].media.map(image => image.label), ['Architecture Diagram', 'Airflow DAG', 'Star Schema'])
+    for (const image of projects.flatMap(project => project.media)) {
+      const bytes = readFileSync(new URL('../src/assets/images/' + image.src.split('/').pop(), import.meta.url))
+      assert.equal(image.width, bytes.readUInt32BE(16))
+      assert.equal(image.height, bytes.readUInt32BE(20))
+      assert(image.alt.length > 20)
+    }
     const headline = hero.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)[1]
     assert.deepEqual(tokens(headline).filter(token => token[0] === 'text').map(token => token[1]),
       ["Hello, I'm Candra.", 'I build with data.'])
@@ -72,7 +120,7 @@ test('V2 H1 preserves all non-Hero content, section order, links, assets and lic
     assert(headingLevels.every((level, i) => i === 0 || level <= headingLevels[i - 1] + 1))
     assert.deepEqual(elements.filter(token => token[1] === 'section').map(token => token[2].id),
       ['home', 'about', 'featured', 'projects', 'skills', 'education', 'contact'])
-    assert.equal(elements.filter(token => token[1] === 'header').length, 1)
+    assert.equal(elements.filter(token => token[1] === 'header' && token[2].class === 'site-header').length, 1)
     assert.equal(elements.filter(token => token[1] === 'main').length, 1)
     assert.equal(elements.filter(token => token[1] === 'footer').length, 1)
     const ids = elements.map(token => token[2].id).filter(Boolean)
@@ -84,11 +132,18 @@ test('V2 H1 preserves all non-Hero content, section order, links, assets and lic
       }
     }
     const images = elements.filter(token => token[1] === 'img')
-    assert.equal(images.length, 3)
+    assert.equal(images.length, 2) // One default screenshot per gallery; others load on selection.
     assert(images.every(token => token[2].src.startsWith('assets/images/')))
+    for (const [, , attrs] of images) {
+      const bytes = readFileSync(new URL('../src/' + attrs.src, import.meta.url))
+      assert.equal(Number(attrs.width), bytes.readUInt32BE(16))
+      assert.equal(Number(attrs.height), bytes.readUInt32BE(20))
+      assert.equal(attrs.loading, 'lazy')
+    }
     assert.equal(config.base, '/portfolio/')
     assert.equal(read('../src/styles/style.css'), read('../../css/style.css'))
-    for (const file of ['executive-overview.png', 'sales-analysis.png', 'customer-experience.png']) {
+    for (const file of ['executive-overview.png', 'sales-analysis.png', 'customer-experience.png',
+      'architecture.png', 'airflow-workflow.png', 'star-schema.png']) {
       assert(readFileSync(new URL('../src/assets/images/' + file, import.meta.url))
         .equals(readFileSync(new URL('../../assets/images/' + file, import.meta.url))))
     }

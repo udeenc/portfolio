@@ -1,11 +1,15 @@
 ﻿# Portfolio V2 ? Immersive Data Lab
 
-The current feature branch records the **H5 checkpoint for completed Hero V2
-H1–H4**. The owner approved all seven manual browser checks; see
-[HERO-V2-H5.md](HERO-V2-H5.md) for signoff, checkpoint scope and final validation.
-The [H4 audit](HERO-V2-H4.md) documents responsive/performance/accessibility work;
-the [H3 report](HERO-V2-H3.md) describes the reversible dissolve. Historical reports
-retain their earlier testing status. W1 and deployment are outside this checkpoint.
+The current feature branch adds **W2: Selected Work reveals, hover emphasis and
+shared screenshot galleries** after [W1](SELECTED-WORK-W1.md) and the committed
+[Hero V2 H5 checkpoint](HERO-V2-H5.md) (`12bc123`). See
+[SELECTED-WORK-W2.md](SELECTED-WORK-W2.md) for interaction/accessibility behavior,
+validation and required browser review. The approved Hero remains unchanged.
+W3/W4 detail pages and deployment are outside this work.
+
+The [2026-11-18 progress checkpoint](LOCAL-PROGRESS-CHECKPOINT.md) records completed
+W1/W2 implementation, owner-approved Hero/Selected Work layout appearance and the
+current build, lint, 34-test and production asset validation results.
 
 ## Migration and release history
 
