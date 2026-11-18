@@ -47,15 +47,25 @@ test('A1 integrates About/Education, orders and numbers sections, and preserves 
       // The original script also updates this year after loading.
       .replace(/(<span id="year">)\d{4}/, '$1' + new Date().getFullYear())
     // A1 integrates About/Education; S1 and C1 replace Skills and Contact.
-    // Keep Header parity and the approved Hero/Work/Skills contracts below.
+    // N1 refines Header; retain brand identity and the approved section contracts.
     const heroPattern = /<section\b[^>]*\bid="home"[^>]*>[\s\S]*?<\/section>/
     const workPattern = /<section\b[^>]*\bid="featured"[^>]*>[\s\S]*?<\/section>/
     const hero = markup.match(heroPattern)[0]
     const section = (html, id) => html.match(new RegExp('<section\\b[^>]*\\bid="' + id + '"[^>]*>[\\s\\S]*?<\\/section>'))[0]
-    for (const tag of ['header']) {
-      const pattern = new RegExp('<' + tag + '\\b[^>]*>[\\s\\S]*?<\\/' + tag + '>')
-      assert.deepEqual(tokens(markup.match(pattern)[0]), tokens(original.match(pattern)[0]))
-    }
+    const header = markup.match(/<header\b[^>]*>[\s\S]*?<\/header>/)[0]
+    const headerElements = tokens(header).filter(token => token[0] === 'start')
+    assert.deepEqual(headerElements.filter(token => token[1] === 'a').map(token => token[2].href),
+      ['#home', '#about', '#featured', '#skills', '#contact'])
+    assert(header.includes('CANDRA WIJAYA'))
+    assert.match(header, /aria-label="Candra Wijaya home">cw<span>\.<\/span>/)
+    assert.match(header, /<nav[^>]*aria-label="Main navigation"/)
+    const toggle = headerElements.find(token => token[1] === 'button')[2]
+    assert.equal(toggle.type, 'button')
+    assert.equal(toggle['aria-expanded'], 'false')
+    assert.equal(toggle['aria-controls'], 'nav-links')
+    assert.equal(toggle['aria-label'], 'Open navigation menu')
+    assert.match(header, /class="nav-links is-collapsed"/)
+    assert(!header.includes('aria-current')) // No active section in the initial Hero.
     const skills = section(markup, 'skills')
     const skillElements = tokens(skills).filter(token => token[0] === 'start')
     const skillText = tokens(skills).filter(token => token[0] === 'text').map(token => token[1])
@@ -170,7 +180,7 @@ test('A1 integrates About/Education, orders and numbers sections, and preserves 
       ['home', 'about', 'featured', 'skills', 'contact'])
     const numberedLabels = tokens(markup).filter(token => token[0] === 'text' && /^0\d\s*\//.test(token[1])).map(token => token[1])
     assert.deepEqual(numberedLabels, ['01 / ABOUT ME', '02 / SELECTED WORK', '03 / SKILLS & CAPABILITIES', '04 / CONTACT'])
-    assert.equal(elements.filter(token => token[1] === 'header' && token[2].class === 'site-header').length, 1)
+    assert.equal(elements.filter(token => token[1] === 'header' && token[2].class.split(' ').includes('site-header')).length, 1)
     assert.equal(elements.filter(token => token[1] === 'main').length, 1)
     assert.equal(elements.filter(token => token[1] === 'footer').length, 1)
     const ids = elements.map(token => token[2].id).filter(Boolean)
